@@ -19,10 +19,10 @@ export class HelloServiceService {
 
     let body = `name=${personToGreet}`;
 
-    this.http.post<Greeting>('http://localhost:8080/hello', body, {
+    this.http.post<Greeting>('http://localhost:1234/hello', body, {
       headers: new HttpHeaders().set('content-type', 'application/x-www-form-urlencoded')
     })
-      .subscribe(greeting => this.greetings$.next(greeting.hello));
+      .subscribe(greeting => this.greetings$.next(greeting.hello), e => console.error(e));
   }
 
 }
