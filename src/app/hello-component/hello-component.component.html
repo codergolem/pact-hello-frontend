@@ -1,0 +1,14 @@
+<h1>Person Greeter</h1>
+
+<div>
+  <form (ngSubmit)="doSubmit($event)">
+    <label for="personToGreet">Person to greet</label>
+    <input type="text" id="personToGreet" name="personToGreet" required="true" [(ngModel)]="personToGreet">
+
+    <button type="submit">Greet!</button>
+  </form>
+</div>
+
+<div>
+  <i>Hello: {{ greetings$ | async }}</i>
+</div>
