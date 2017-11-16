@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
-import {HelloServiceService} from "../hello-service.service";
-import {Observable} from "rxjs/Observable";
+import {HelloServiceService} from '../hello-service.service';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
   selector: 'app-hello-component',
@@ -17,7 +17,7 @@ export class HelloComponentComponent  {
     this.greetings$ = this.helloService.greetings$;
   }
 
-  doSubmit($event: Event) {
+  doSubmit() {
     this.helloService.requestGreeting(this.personToGreet);
   }
 }

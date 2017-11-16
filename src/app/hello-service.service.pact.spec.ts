@@ -1,77 +1,58 @@
-import {getTestBed, TestBed} from "@angular/core/testing";
-import {HttpModule} from "@angular/http";
-import {HelloServiceService} from "./hello-service.service";
-import * as Pact from 'pact-web';
-import {HttpClient, HttpClientModule} from "@angular/common/http";
-import {HttpClientTestingModule} from "@angular/common/http/testing";
+import {HttpClient, HttpHandler, HttpXhrBackend, XhrFactory} from '@angular/common/http';
+import {HelloServiceService} from './hello-service.service';
+import {Pact} from '@pact-foundation/pact-node/src/pact';
+import pact = require('pact');
 
-fdescribe('HelloService', () => {
-  let provider;
-  let helloService: HelloServiceService;
+describe('helloWorld Pact' , () => {
+  const provider = pact({
+    consumer: 'helloWorld-frontend',
+    provider: 'helloWorld-backend',
+    port: 8080,
+    log: 'logs/pact.log',
+    dir: 'pacts',
+    spec: 2
+  });
+  const expectedHelloWorldResponse = [
+    {'hello': 'world'}
+  ];
 
-  beforeAll((done) => {
-    console.log("beforeAll, top level");
-    provider = Pact({
-      consumer: 'ng-hello',
-      provider: 'hello-server',
-      web: true
-    });
+  let helloService;
+  let httpHandler: HttpHandler;
+  let httpClient: HttpClient;
 
-    // required for slower CI environments
-    setTimeout(done, 200);
-
-    provider.removeInteractions();
-
+  beforeEach(done => {
+    provider.setup()
+      .then(() => {
+        provider.addInteraction({
+          state: 'Initial State',
+          uponReceiving: 'a empty request from hello-frontend',
+          withRequest: {
+            method: 'POST',
+            path: '/hello',
+            headers: {'Accept': 'application/json'}
+          },
+          willRespondWith : {
+            status : 200,
+            headers :  { 'Content-Type': 'application/json' },
+            body : expectedHelloWorldResponse
+          }
+        });
+      }).then(() => done());
   });
 
-  afterAll((done) => {
-    console.log("afterAll, top level");
-    provider.finalize().then(done, e => done.fail(e));
+  const xhrFactory = {
+    build(): any { return <any>(new XMLHttpRequest()); }
+  } as XhrFactory;
+  httpHandler = new HttpXhrBackend(xhrFactory);
+  httpClient = new HttpClient(httpHandler);
+
+  helloService = new HelloServiceService(httpClient);
+
+  it('should return a greeting to the given name', (done) => {
+    helloService.requestGreeting('');
   });
 
-  beforeEach((done) => {
-    console.log("beforeEach, top level");
-    TestBed.configureTestingModule({
-      providers: [ HelloServiceService ],
-      imports: [ HttpClientTestingModule]
-    });
-
-     helloService = getTestBed().get(HelloServiceService);
+  afterAll(() => {
+    provider.finalize();
   });
-
-  afterEach((done) => {
-    console.log("afterEach, top level");
-    provider.verify().then(done, e => {
-      console.error(e);
-      return done.fail(e);
-    });
-  });
-
-  describe('/hello', () => {
-    beforeAll((done) => {
-      console.log("beforeAll, /hello level");
-      provider.addInteraction({
-        uponReceiving : 'a request to say hello',
-        withRequest: {
-          method : 'POST',
-          path: '/hello',
-        },
-        willRespondWith : {
-          status :200,
-          headers : {'Content-Type': 'application/json'},
-          body: [{
-            hello : Pact.Matchers.somethingLike('world')
-          }]
-        }
-      }).then(done, e => done.fail(e))
-    });
-
-    it('should return a greeting to the given name', (done) => {
-      console.log("test, /hello level");
-      helloService.requestGreeting('');
-      done();
-    })
-  });
-
-
 });

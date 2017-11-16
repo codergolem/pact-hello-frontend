@@ -26,7 +26,6 @@ module.exports = function (config) {
     reporters: ['progress', 'kjhtml'],
     port: 9876,
     colors: true,
-    logLevel: config.LOG_INFO,
     autoWatch: true,
     browsers: ['Chrome'],
     singleRun: false,
@@ -34,7 +33,9 @@ module.exports = function (config) {
       cors: true,
       spec: 2,
       port: 1234,
-      dir: 'pacts/'
+      dir: 'pacts/',
+      logLevel: 'DEBUG',
+      log: 'pact.log'
     }],
     proxies: {
       '/hello': 'http://localhost:1234/hello'

@@ -3,9 +3,9 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { HelloComponentComponent } from './hello-component/hello-component.component';
-import {FormsModule} from "@angular/forms";
-import {HttpClientModule} from "@angular/common/http";
-import {HelloServiceService} from "./hello-service.service";
+import {FormsModule} from '@angular/forms';
+import {HttpClientModule} from '@angular/common/http';
+import {HelloServiceService} from './hello-service.service';
 
 @NgModule({
   declarations: [
